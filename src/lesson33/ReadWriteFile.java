@@ -38,10 +38,10 @@ public class ReadWriteFile {
         FileWriter writer=null;
         BufferedWriter bufferedWriter=null;
         try {
-            //TODO use other construction
-            writer=new FileWriter(path,true);   //если писать FileWriter(path) - будет перезаписывать инфо в файле
-            bufferedWriter=new BufferedWriter((writer));
+            writer=new FileWriter(path,true);                //если писать FileWriter(path) - будет перезаписывать инфо в файле
+//          writer=new FileWriter(new File("path",true);            //можно и так написать
 
+            bufferedWriter=new BufferedWriter((writer));
             bufferedWriter.append("\n");
             bufferedWriter.append("новая строка");
         } catch (IOException e) {
