@@ -1,24 +1,11 @@
 package lesson34C;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Solution {
-    /*переносит все предложения, которые содержат входящее слово
-            - предложением считаем текст отделеннный точкой(.) длинной больше 10 символов (включая пробелы)
-            - перенесенное предложение при этом должно быть удалено из входящего файла
-
-            //в fileFrom:
-                - находим нужное слово
-                    - вырезаем предложение (от предыдущей точки до следующей точки)
-                        -проверяем предложение больше 10 символов
-                                - нет - идем дальше искать;
-                                - да  - идем дальше искать
-                                        - вырезаем предложение от точки + пробел -предложение с точкой -
-                                        - копируем его в буффер, добавляее при этом перенос
-                                        - удаляем предложение из файла
-                                 - вставляем скопированный буфер в другой файл
-     */
-
 
     public static void transferSentences(String fileFromPath, String fileToPath,String wordToCheck) {
         try {
@@ -27,7 +14,7 @@ public class Solution {
             System.err.println("error: " + e.getMessage());
             System.exit(0);
         }
-        writeToFile(fileToPath, readFromFile(fileFromPath), true);
+        writeToFile(fileToPath, readFromFile(fileFromPath,wordToCheck), true);
     }
 
     private static void validate(String fileFromPath, String fileToPath) throws Exception {
@@ -48,16 +35,18 @@ public class Solution {
         }
     }
 
-    private static StringBuffer readFromFile(String path) {
-        StringBuffer res = new StringBuffer();
+    private static ArrayList<String> readFromFile(String path,String wordToCheck) {
+        ArrayList<String> res = null;
         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
             try {
-            String line;
+                String line;
+                res = new ArrayList<>();
+                ArrayList<String> delete = new ArrayList<>();
                 while ((line = br.readLine()) != null) {
-                    res.append(line);
-                    res.append("\n");
+                    res.addAll(searchText(line, wordToCheck));
+                    delete.add(line + "\n");
                 }
-                deleteContentFromFile(path, res);
+                deleteAndWriteFromFile(delete, res,path);
             } catch (OutOfMemoryError e) {
                 System.err.println("It is not possible to transfer content ");
                 System.exit(0);
@@ -69,15 +58,48 @@ public class Solution {
         return res;
     }
 
-    private static void deleteContentFromFile(String path, StringBuffer res) {
-        StringBuffer res2 = new StringBuffer(res);
-        res2.delete(0, res2.length());
-        writeToFile(path, res2, false);
+    private static ArrayList<String> searchText(String txt, String word) {
+        ArrayList<String> list = new ArrayList<>();
+        if (matcher(txt.toLowerCase(), word)) {
+            String[] array = txt.split("\\.");
+            for (String el : array) {
+                if (el.length() > 10) {
+                    if (matcher(el.toLowerCase(), word)) {
+                        list.add(el.trim() + "." + "\n");
+                    }
+                }
+            }
+        }
+        return list;
     }
 
-    private static void writeToFile(String path, StringBuffer contentToWrite, boolean append) {
+    private static boolean matcher(String txt, String word) {
+        Pattern pattern = Pattern.compile(word.toLowerCase());
+        Matcher m = pattern.matcher(txt);
+        if (m.find()) {
+            return true;
+        }
+        return false;
+    }
+
+    private static void deleteAndWriteFromFile(ArrayList<String> delete, ArrayList<String> res, String path) {
+        for (int i = 0; i < delete.size(); i++) {
+            for (int j = 0; j < res.size(); j++) {
+                String tmp = res.get(j).substring(0, res.get(j).length() - 1) + " ";
+                if (delete.get(i).contains(tmp)) {
+                    delete.set(i, delete.get(i).replace(tmp, ""));
+                    break;
+                }
+            }
+        }
+        writeToFile(path, delete, false);
+    }
+
+    private static void writeToFile(String path, ArrayList<String> list, boolean append) {
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path, append))) {
-            bufferedWriter.append(contentToWrite);
+            for (int i = 0; i < list.size(); i++) {
+                bufferedWriter.append(list.get(i));
+            }
         } catch (IOException e) {
             System.err.println("Can't write to file");
             System.exit(0);

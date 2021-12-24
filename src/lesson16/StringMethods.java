@@ -31,7 +31,7 @@ public class StringMethods {
     //split("e") - делает String на массив под String, по значению
         System.out.println(Arrays.toString(test.split("e")));
 
-        String phrase="Hello there guys";
+        String phrase="Hello there ";
         System.out.println(Arrays.toString(phrase.split(" ")));
 
     //trim() - удаляет пробел в начале и конце String
