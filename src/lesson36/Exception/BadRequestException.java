@@ -1,4 +1,4 @@
-package lesson27B.Exception;
+package lesson36.Exception;
 
 public class BadRequestException extends Exception {
 
