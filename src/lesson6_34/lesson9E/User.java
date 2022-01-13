@@ -1,4 +1,4 @@
-package lesson9E;
+package lesson6_34.lesson9E;
 
 public class User {
     private long id;
@@ -21,5 +21,14 @@ public class User {
 
     public String getSessionId() {
         return sessionId;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", sessionId='" + sessionId + '\'' +
+                '}';
     }
 }
